@@ -1,81 +1,75 @@
-# YouTube Virality Analyst
+# Jarvis
 
-A lightweight MVP that studies your viral YouTube videos and highlights what to improve in videos that underperformed.
+Jarvis is a daily forex intelligence assistant built for traders who want a smarter, calmer view of the market without blindly trusting a bot.
 
-This project is designed for a simple workflow:
+It is designed to:
+- fetch major forex pair data
+- compute trend, support/resistance, and momentum context
+- analyze the market with Claude
+- summarize the day in plain English
+- verify and track TradingView webhook signals
+- generate a daily market brief you can review
 
-- Load a CSV export of your channel history
-- Compare each video against your top-performing videos
-- Detect patterns in titles, thumbnails, retention, and timing
-- Recommend changes for weaker videos
-- Review your channel-level strategy
+## What this MVP includes
 
-## What it does
+- Streamlit dashboard
+- FX data pull from Stooq (no paid API required)
+- Technical analysis helpers
+- Claude integration for summary generation
+- TradingView webhook parser helper
+- Daily brief export to the `reports/` folder
 
-The app analyzes the following signals:
+## Quick start
 
-- Views
-- Click-through rate (CTR)
-- Average view duration
-- 30s and 60s retention
-- Title length and hook strength
-- Thumbnail style
-- Upload day / time
-- Topic
+1. Create a virtual environment
 
-It then identifies the behaviors most common in viral videos and produces practical suggestions such as:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
 
-- tighten the first 10-20 seconds
-- improve the thumbnail/title hook
-- publish at a better time
-- shorten the intro and build a clearer promise
-- choose topic angles that match your top performers
-
-## Run locally
-
-1. Create and activate a virtual environment
-2. Install dependencies:
+2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Start the app:
+3. Copy environment settings
+
+```bash
+cp .env.example .env
+```
+
+4. Add your Anthropic API key if you want Claude summaries
+
+```bash
+ANTHROPIC_API_KEY=your_key_here
+```
+
+5. Launch the dashboard
 
 ```bash
 streamlit run app.py
 ```
 
-4. Upload a CSV or use the included sample data.
+## Project structure
 
-## Expected CSV columns
-
-Use a CSV with these columns:
-
-```csv
-title,topic,published_at,views,ctr,avg_view_duration,retention_30s,retention_60s,thumbnail_style,title_length,hook_words,upload_day,upload_time
+```text
+jarvis/
+  __init__.py
+  analysis.py
+  claude_analysis.py
+  market_data.py
+  tradingview_adapter.py
+reports/
+app.py
+README.md
+requirements.txt
+.env.example
 ```
-
-Example values:
-
-- `title`: video title
-- `topic`: topic or niche category
-- `published_at`: ISO date
-- `views`: total views
-- `ctr`: click-through rate (e.g. 0.05 for 5%)
-- `avg_view_duration`: average viewing duration in seconds
-- `retention_30s`: percentage of viewers still watching at 30 seconds
-- `retention_60s`: percentage still watching at 60 seconds
-- `thumbnail_style`: e.g. `face`, `text`, `bold`, `closeup`, `pattern`
-- `title_length`: number of characters in the title
-- `hook_words`: key opening words in title or script focus
-- `upload_day`: `Monday` / `Tuesday` / etc.
-- `upload_time`: `morning`, `afternoon`, `evening`, `night`
-
-## Sample data
-
-The repository includes a sample dataset to test the app immediately.
 
 ## Notes
 
-This is intentionally a practical MVP built around rules-driven analytics. It is not a replacement for a full custom model, but it is useful for learning from your channel history and making better content decisions.
+- This app is intended for analysis and briefing, not automated trade execution.
+- TradingView is treated as an alert source and context layer, not as a guarantee of a trade idea.
+- If Anthropic is not configured, Jarvis falls back to a local technical summary.
