@@ -1,0 +1,55 @@
+import pandas as pd
+import streamlit as st
+
+from youtube_analyst import analyze_channel
+
+
+def _display_recommendations(result):
+    st.subheader("Your viral benchmark")
+    cols = st.columns(5)
+    metrics = [
+        ("CTR avg", f"{result['summary']['ctr_avg']:.2%}"),
+        ("30s retention", f"{result['summary']['retention_30s_avg']:.1%}"),
+        ("60s retention", f"{result['summary']['retention_60s_avg']:.1%}"),
+        ("Avg view duration", f"{result['summary']['avg_view_duration_avg']:.0f}s"),
+        ("Best upload time", result['summary']['best_upload_time']),
+    ]
+    for i, (label, value) in enumerate(metrics):
+        with cols[i]:
+            st.metric(label, value)
+
+    st.subheader("Video-by-video fixes")
+    for item in result["recommendations"]:
+        with st.expander(f"{item['title']} — views: {item['views']}"):
+            st.write(f"Performance score: {item['score']:.1f}/100")
+            st.write("Recommended changes:")
+            for rec in item["recommendations"]:
+                st.markdown(f"- {rec}")
+            st.write("Comparison vs viral baseline:")
+            st.json(item["comparison"])
+
+
+st.set_page_config(page_title="YouTube Virality Analyst", page_icon="📈")
+st.title("YouTube Virality Analyst")
+st.caption("Analyze your previous videos against your strongest-performing content.")
+
+uploaded_file = st.file_uploader("Upload your CSV", type=["csv"])
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    with st.spinner("Analyzing your channel..."):
+        try:
+            result = analyze_channel(df.to_dict(orient="records"))
+            _display_recommendations(result)
+        except ValueError as exc:
+            st.error(str(exc))
+else:
+    sample_path = "sample_data/youtube_videos.csv"
+    try:
+        sample_df = pd.read_csv(sample_path)
+        if st.button("Run sample analysis"):
+            with st.spinner("Analyzing sample channel data..."):
+                result = analyze_channel(sample_df.to_dict(orient="records"))
+                _display_recommendations(result)
+    except FileNotFoundError:
+        st.info("Upload a CSV to analyze your channel data.")
